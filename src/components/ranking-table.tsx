@@ -26,7 +26,7 @@ export function RankingTable({ standings }: { standings: StandingEntry[] }) {
 
     return (
         <>
-            <Card className="shadow-xs rounded-lg p-0 overflow-hidden">
+            <Card className="shadow-xs rounded-lg p-0">
                 <Table>
                     <TableHeader>
                         <TableRow className="font-medium *:p-4 *:text-muted-foreground">
@@ -51,8 +51,10 @@ export function RankingTable({ standings }: { standings: StandingEntry[] }) {
                                 <TableCell className="sm:w-[30%] w-full">
                                     <div className="flex items-center sm:gap-5 gap-2">
                                         <div className="overflow-hidden sm:w-9 sm:h-9 h-8 w-8 flex justify-center items-center p-1">
-                                            {team.logo && (
+                                            {team.logo ? (
                                                 <Image src={team.logo} width={64} height={64} alt={`Logo de l'équipe ${team.teamName}`} />
+                                            ) : (
+                                                <span className="sm:text-base text-sm font-medium font-mono text-muted-foreground">?</span>
                                             )}
                                         </div>
                                         <div className="flex items-center gap-2">
