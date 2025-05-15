@@ -41,4 +41,21 @@ export interface StandingEntry {
     points: number;
     teamName: string;
     roster: string[];
+    logo?: string;
+}
+
+export interface Team {
+    id: number;
+    name: string;
+    location: string;
+    players: object[];
+    slug: string;
+    modified_at: string;
+    acronym?: string;
+    image_url?: string;
+    current_videogame: {
+        id: number;
+        name: string;
+        slug: string;
+    }
 }

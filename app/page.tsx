@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-    const res = await fetch(`http://localhost:3000/api/valve/vitality`, {
+    const res = await fetch(`${process.env.APP_URL}/api/valve/vitality`, {
         next: { revalidate: 60 },
     })
 

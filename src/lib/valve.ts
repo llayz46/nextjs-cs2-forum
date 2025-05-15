@@ -1,4 +1,8 @@
-import {RosterDetails, Match, Winnings, Factors, StandingEntry} from "@/lib/types"
+import {Factors, Match, RosterDetails, StandingEntry, Winnings} from "@/lib/types"
+import {encodeButKeepSpaces} from "@/lib/utils";
+
+const EXCLUDED_NAMES = ["The MongolZ", "Aurora", "HEROIC", "Falcons", "BetBoom", "The Huns"]
+const UNMODIFIED_NAMES = ['TheMongolz', 'Aurora Gaming', 'Heroic', 'Team Falcons', 'BetBoom Team', 'The Huns Esports']
 
 /**
  * Parse le contenu brut Markdown (sans front-matter) en RosterDetails
@@ -72,7 +76,9 @@ export function parseRosterDetails(raw: string): RosterDetails {
     }
 }
 
-export function parseStandings(raw: string): StandingEntry[] {
+export async function parseStandings(raw: string): Promise<StandingEntry[]> {
+    const teamsName = new Set<string>();
+
     const lines = raw.split('\n');
 
     const result: StandingEntry[] = [];
@@ -86,9 +92,76 @@ export function parseStandings(raw: string): StandingEntry[] {
             const teamName = match[3].trim();
             const roster = match[4].split(',').map(player => player.trim());
 
+            teamsName.add(teamName);
+
             result.push({ standing, points, teamName, roster });
         }
     }
 
-    return result;
+    const allTeamNames = new Set([
+        ...Array.from(teamsName),
+        ...UNMODIFIED_NAMES
+    ]);
+
+    const chunks = chunkArray(Array.from(allTeamNames), 20);
+
+    const teamResponses = await Promise.all(
+        chunks.map(chunk => fetchTeamsFromNames(new Set(chunk)))
+    );
+
+    const allTeams = teamResponses.flat();
+
+    return result.map(entry => {
+        let normalizedEntryTeamName = ''
+
+        if (EXCLUDED_NAMES.includes(entry.teamName)) {
+            const index = EXCLUDED_NAMES.indexOf(entry.teamName)
+            if (index !== -1) {
+                normalizedEntryTeamName = UNMODIFIED_NAMES[index]
+            }
+        } else {
+            normalizedEntryTeamName = encodeButKeepSpaces(entry.teamName)
+        }
+
+        const match = allTeams.find(team =>
+            encodeButKeepSpaces(team.name) === encodeButKeepSpaces(normalizedEntryTeamName)
+        )
+
+        return {
+            ...entry,
+            logo: match?.image_url ?? null
+        };
+    });
+}
+
+export async function fetchTeamsFromNames(teamsName: Set<string>) {
+    const teamNamesArray = Array.from(teamsName)
+    const encodedNames = teamNamesArray
+        .filter(name => !EXCLUDED_NAMES.includes(name))
+        .map(name => encodeButKeepSpaces(name))
+        .join(',')
+
+    const url = `https://api.pandascore.co/csgo/teams?filter[name]=${encodedNames}`
+
+    const response = await fetch(url, {
+        headers: {
+            Authorization: `Bearer ${process.env.PANDASCORE_API_KEY}`
+        }
+    })
+
+    if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`)
+    }
+
+    return await response.json()
+}
+
+function chunkArray(arr: string[], size: number): string[][] {
+    const chunks = []
+
+    for (let i = 0; i < arr.length; i += size) {
+        chunks.push(arr.slice(i, i + size))
+    }
+
+    return chunks
 }

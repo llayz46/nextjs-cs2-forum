@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { parseStandings } from "@/lib/valve";
+import { redis } from "@/lib/redis";
 
 type Standings = {
     name: string
@@ -22,7 +23,17 @@ const GITHUB_API = `https://api.github.com/repos/ValveSoftware/counter-strike_re
 
 export async function GET() {
     try {
-        const dirRes = await fetch(GITHUB_API)
+        const cacheKey = "valve-ranking";
+        const cache = await redis.get(cacheKey);
+
+        if (cache) return NextResponse.json(JSON.parse(cache))
+
+        const dirRes = await fetch(GITHUB_API, {
+            headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}`
+            },
+        })
+
         const dirs = await dirRes.json()
 
         const standingsFilesSorted = dirs
@@ -35,30 +46,39 @@ export async function GET() {
             return NextResponse.json({ error: 'Aucune date trouvée' }, { status: 404 })
         }
 
-        let rawText: string | null = null
-        let lastWorkingDate: string = ''
-
         const fileName = standingsFilesSorted[0]
-
         const dirUrl = `${GITHUB_API}/${fileName}`;
-        const response = await fetch(dirUrl);
+        const response = await fetch(dirUrl, {
+            headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}`
+            },
+        });
         const file = await response.json();
 
         const url = `https://raw.githubusercontent.com/ValveSoftware/counter-strike_regional_standings/refs/heads/main/${file.path}`
-        const res = await fetch(url)
+        const res = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}`
+            },
+        })
 
-        if (res.ok) {
-            rawText = await res.text()
-            lastWorkingDate = file.name.match(/\d{4}_\d{2}_\d{2}/)[0]
+        if (!res.ok) {
+            return NextResponse.json({ error: 'Données introuvables...' }, { status: 404 });
         }
 
-        if (!rawText) {
-            return NextResponse.json({ error: 'Données introuvable...' }, { status: 404 })
-        }
+        const rawText = await res.text();
+        const lastWorkingDate = file.name.match(/\d{4}_\d{2}_\d{2}/)?.[0] ?? '';
 
-        const details = parseStandings(rawText)
+        const details = await parseStandings(rawText)
 
-        return NextResponse.json({ date: lastWorkingDate, standings: details })
+        const finalData = {
+            date: lastWorkingDate,
+            standings: details
+        };
+
+        await redis.set(cacheKey, JSON.stringify(finalData), 'EX', 60 * 60 * 24 * 14)
+
+        return NextResponse.json(finalData)
     } catch (err: unknown) {
         if (err instanceof Error) {
             return NextResponse.json({ error: err.message }, { status: 500 })

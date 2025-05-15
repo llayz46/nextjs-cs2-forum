@@ -43,7 +43,11 @@ export async function GET(req: Request, { params }: { params: { team: string } }
     }
 
     try {
-        const dirRes = await fetch(GITHUB_API)
+        const dirRes = await fetch(GITHUB_API, {
+            headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}`
+            },
+        })
         const dirs = await dirRes.json()
 
         const dateFolders = dirs
