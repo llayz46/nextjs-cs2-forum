@@ -1,4 +1,10 @@
 import { SignupForm } from "@/components/signup-form";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Inscription",
+    description: "Inscription à votre compte",
+};
 
 export default function Signup() {
     return (

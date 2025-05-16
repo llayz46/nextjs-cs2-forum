@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { ReactNode } from "react";
 import "../globals.css";
-import { Toaster } from "sonner";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -31,7 +30,6 @@ export default async function AuthLayout({ children }: Readonly<{ children: Reac
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 {children}
-                <Toaster />
             </body>
         </html>
     );

@@ -1,4 +1,10 @@
 import { LoginForm } from "@/components/login-form";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Connexion",
+    description: "Connexion à votre compte",
+};
 
 export default function Login() {
     return (
