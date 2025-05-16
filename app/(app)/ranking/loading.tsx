@@ -3,7 +3,7 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 
 export default function Loading() {
     return (
-        <section className="my-8 max-w-250 mx-auto font-sans">
+        <section className="max-w-5xl mx-auto font-sans">
             <h1 className="text-2xl font-medium">Le classement officiel Valve (VRS : Valve Ranking System)</h1>
             <h3 className="text-lg text-muted-foreground mt-2 mb-6">
                 Ce classement est mis à jour mensuellement par Valve et

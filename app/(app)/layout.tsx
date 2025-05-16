@@ -1,8 +1,8 @@
-import {Geist, Geist_Mono} from "next/font/google";
-import "./globals.css";
-import {ReactNode} from "react";
+import { buttonVariants } from "@/components/ui/button";
+import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button"
+import { ReactNode } from "react";
+import "../globals.css";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
                     <Link className={buttonVariants({ variant: "outline" })} href="/login">Se connecter</Link>
                 </header>
 
-                <main className="container mx-auto">
+                <main className="container mx-auto flex gap-6 my-8">
                     {children}
                 </main>
             </body>

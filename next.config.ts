@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
                 hostname: 'cdn.pandascore.co',
                 port: '',
             },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                port: '',
+            },
         ]
     }
 };

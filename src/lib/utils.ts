@@ -1,5 +1,5 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -31,4 +31,12 @@ export function normalizeName(name: string): string {
 
 export function encodeButKeepSpaces(str: string): string {
     return encodeURIComponent(str).replace(/%20/g, ' ');
+}
+
+export async function getValveRanking() {
+    const res = await fetch(`${process.env.APP_URL}/api/valve/ranking`)
+
+    if (!res.ok) throw new Error("Failed to fetch valve ranking")
+
+    return await res.json()
 }

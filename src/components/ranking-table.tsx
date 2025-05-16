@@ -1,28 +1,41 @@
 'use client'
 
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {StandingEntry} from "@/lib/types";
-import {cn} from "@/lib/utils";
-import {Minus} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { StandingEntry } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { Minus } from "lucide-react";
 import Image from "next/image";
-import {Card} from "@/components/ui/card";
-import {useState} from "react";
-import {Button} from "@/components/ui/button";
+import { use, useState } from "react";
 
-export function RankingTable({ standings }: { standings: StandingEntry[] }) {
+interface Data {
+    standings: StandingEntry[]
+    date: string
+}
+
+export function RankingTable({ dataPromise }: { dataPromise: Promise<Data> }) {
+    const data = use(dataPromise)
+
     const [standingsLimit, setStandingsLimit] = useState<number>(20);
 
-    const filteredStandings = standings.filter((team: StandingEntry) => {
+    const filteredStandings = data.standings.filter((team: StandingEntry) => {
         return team.standing <= standingsLimit
     })
 
     const viewAll = () => {
         if (standingsLimit === 20) {
-            setStandingsLimit(standings.length)
+            setStandingsLimit(data.standings.length)
         } else {
             setStandingsLimit(20)
         }
     }
+
+    const formattedDate = new Date(data.date.replace(/_/g, "-")).toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    })
 
     return (
         <>
@@ -76,6 +89,8 @@ export function RankingTable({ standings }: { standings: StandingEntry[] }) {
             </Card>
 
             <Button onClick={viewAll} variant="secondary" className="w-full mt-4 cursor-pointer">{standingsLimit === 20 ? 'Voir plus' : 'Voir moins'}</Button>
+
+            <p className="mt-1 text-right text-sm text-muted-foreground">Dernière mise à jour : {formattedDate}</p>
         </>
     )
 }
