@@ -19,7 +19,7 @@ export default async function Home() {
     // const data = await res.json()
 
     return (
-        <Card className="bg-muted min-w-5xl h-fit rounded-lg !p-0 divide-y !gap-0">
+        <Card className="bg-muted w-full max-w-5xl h-fit rounded-lg !p-0 divide-y !gap-0">
             {[...Array(5)].map((_, i) => (
                 <article key={i} className="flex gap-5 p-5">
                     <div className="w-50">

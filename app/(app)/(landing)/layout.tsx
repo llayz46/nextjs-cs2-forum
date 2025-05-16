@@ -15,7 +15,7 @@ export default function Layout({
 }: Readonly<{ children: ReactNode }>) {
     return (
         <>
-            <Card className="shadow-xs rounded-lg p-0 min-w-xs w-full h-fit gap-0 font-sans">
+            <Card className="shadow-xs rounded-lg p-0 max-w-xs w-full h-fit gap-0 font-sans">
                 <CardHeader className="border-b !p-3">
                     <CardTitle>Classement Valve</CardTitle>
                 </CardHeader>
@@ -38,7 +38,7 @@ export default function Layout({
 
             {children}
 
-            <Card className="shadow-xs rounded-lg p-0 min-w-xs w-full h-fit gap-0 font-sans">
+            <Card className="shadow-xs rounded-lg p-0 max-w-xs w-full h-fit gap-0 font-sans">
                 <CardHeader className="border-b !p-3">
                     <CardTitle>Activité récente</CardTitle>
                 </CardHeader>
